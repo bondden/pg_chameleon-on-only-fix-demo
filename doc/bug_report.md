@@ -19,7 +19,11 @@ Git history. The logic was added in b923d66 and 8fe9823 (July 2020) and extended
 
 **The Fix**
 
+The demo bench, reproducing the bug and testing the fix:
+https://github.com/bondden/pg_chameleon-on-only-fix-demo
 
+The fix:
+https://github.com/bondden/pg_chameleon/commit/f8def070909564ba01df38b1c154912f65b1affa
 
 **Steps To Reproduce**
 
