@@ -1,0 +1,67 @@
+name: pg_chameleon-on-only-fix-demo
+services:
+
+  my:
+    hostname: my
+    image: 'mysql:8.0.28'
+    command: --default-authentication-plugin=mysql_native_password
+    env_file:
+      - db.my.env
+    cpus: 2
+    mem_limit: 2g
+    volumes:
+      - type: tmpfs
+        target: /var/lib/mysql
+        tmpfs:
+          size: 2147483648
+      - ./vol/sql/my:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -uwbh -pwbh
+      interval: 2s
+      retries: 60
+    networks:
+      - dbs
+
+  pg:
+    hostname: pg
+    image: postgres:17.6
+    env_file:
+      - db.pg.env
+    cpus: 2.0
+    mem_limit: 2g
+    volumes:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+        tmpfs:
+          size: 2147483648
+      - ./vol/sql/pg:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: pg_isready -h 127.0.0.1 -U wbh -d wbh
+      interval: 2s
+      retries: 60
+    networks:
+      - dbs
+
+  unfixed:
+    image: pg_chameleon:2.0.21
+    build: app/pg_chameleon_2.0.21
+    profiles: [app]
+    volumes:
+      - ./vol/cfg/ch:/home/wbh/.pg_chameleon/configuration:ro
+    networks:
+      - dbs
+
+  fixed:
+    image: pg_chameleon:2.0.21-on-only-fix
+    build:
+      context: app/pg_chameleon_2.0.21-on-only-fix
+      additional_contexts:
+        src: ../pg_chameleon
+    profiles: [app]
+    volumes:
+      - ./vol/cfg/ch:/home/wbh/.pg_chameleon/configuration:ro
+    networks:
+      - dbs
+
+networks:
+  dbs:

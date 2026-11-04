@@ -1,0 +1,19 @@
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+indent_style = tab
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = false
+
+[*.{js,ts,puml,yml,yaml,md,styl,conf,nginx,httpd,py,sql}]
+indent_style = space
+
+[*.py]
+indent_size = 4
+
+[cloud-init.cfg]
+indent_style = space
+

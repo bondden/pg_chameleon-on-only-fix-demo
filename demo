@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+# The script dir:
+sDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function dc {
+	
+	docker compose -f "$sDir/bench.cps.yml" "$@"
+	
+}
+
+function bld {
+	
+	echo "${FUNCNAME[0]}"
+	
+	dc --profile app build
+	
+}
+
+function up {
+	
+	echo "${FUNCNAME[0]}"
+	
+	dc up -d --wait my pg
+	
+}
+
+function down {
+	
+	echo "${FUNCNAME[0]}"
+	
+	dc --profile app down
+	
+}
+
+function migrate {
+	
+	echo "${FUNCNAME[0]} $1"
+	
+	dc run --rm "$1" create_replica_schema
+	dc run --rm "$1" add_source --source "$1"
+	dc run --rm "$1" init_replica --source "$1"
+	
+}
+
+function show {
+	
+	echo "${FUNCNAME[0]} $1"
+	
+	dc exec -T pg psql -U wbh -d wbh -P pager=off <<-SQL
+		SET search_path = $1;
+		ANALYZE t1;
+		\d t1
+		\d t1_p_2025
+		EXPLAIN SELECT * FROM t1 WHERE payload = md5('100000');
+	SQL
+	
+}
+
+function compare {
+	show unfixed
+	show fixed
+}
+
+function run {
+	down && \
+	bld && \
+	up && \
+	migrate unfixed && \
+	migrate fixed && \
+	compare
+}
+
+"$@"

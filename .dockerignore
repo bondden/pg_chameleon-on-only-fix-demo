@@ -1,0 +1,13 @@
+__pycache__
+node_modules
+.idea
+.ansible
+dist
+*.env
+vol
+.ssh
+.cre
+.pcs
+doc
+bch
+app
